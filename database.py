@@ -51,8 +51,8 @@ def create_database():
         user_id INTEGER,
         total_gpt_tokens INTEGER,
         tts_symbols INTEGER,
-        stt_blocks INTEGER), 
-        time_zone INTEGER;
+        stt_blocks INTEGER, 
+        time_zone INTEGER);
     '''
     execute_query(query1)
     logging.info("DATABASE: База limits данных создана")
@@ -63,8 +63,8 @@ def create_database():
         user_id INTEGER,
         role TEXT,
         messages TEXT, 
-        FOREIGN KEY (user_id) REFERENCES limits (user_id)),
-        time INTEGER;
+        time INTEGER,
+        FOREIGN KEY (user_id) REFERENCES limits (user_id));
     '''
     execute_query(query2)
     logging.info("DATABASE: База messages данных создана")
