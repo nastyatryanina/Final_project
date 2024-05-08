@@ -1,0 +1,5 @@
+creds/
+__pyache__/
+.vscode/
+/user_info.db
+/logs.txt
