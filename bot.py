@@ -15,6 +15,7 @@ logging.basicConfig(filename=LOGS,
                     filemode="w")
 
 TOKEN = get_bot_token()
+print(TOKEN)
 bot = telebot.TeleBot(TOKEN)
 
 db.create_db()
@@ -247,7 +248,7 @@ def remind():
         last_msg = db.get_value('messages', user[0], 'time')
 
         #если сейчас время с учетом разницы пользователя = REMIND_TIME и с момента отправки последнего сообщения прошло больше дня
-        if last_msg != None and datetime.fromtimestamp(user_zone*3600 + last_msg).hour ==  REMIND_TIME and time.time() - last_msg >= 86400: 
+        if datetime.fromtimestamp(user_zone*3600 + last_msg).hour ==  REMIND_TIME and time.time() - last_msg >= 86400: 
             bot.send_message(user[0], random.choice(remind_messages))
             db.insert_row('messages', (user[0], 'bot', "", int(time.time())))
 

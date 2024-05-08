@@ -98,7 +98,7 @@ def get_value(table_name, user_id, column):
     res = execute_selection_query(sql_query)
     if res and res[0]:
         return execute_selection_query(sql_query)[0][0]
-    return None
+    return 0
 
 
 def count_users(user_id):
@@ -123,7 +123,3 @@ def select_n_last_messages(user_id, n_last_messages=COUNT_LAST_MSG):
 def get_all_users():
     sql_query = '''SELECT DISTINCT user_id FROM limits;'''
     return execute_selection_query(sql_query)
-
-
-if __name__ == "__main__":
-    print(select_n_last_messages(2112842404))
