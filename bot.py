@@ -15,7 +15,6 @@ logging.basicConfig(filename=LOGS,
                     filemode="w")
 
 TOKEN = get_bot_token()
-print(TOKEN)
 bot = telebot.TeleBot(TOKEN)
 
 db.create_db()
@@ -29,6 +28,7 @@ functions = {
     '/set_time_zone': "Указать разницу во времени с Москвой",
     '/tts': "Проверка работы режима TextToSpeech", 
     '/stt': "Проверка работы режима SpeechToText",
+    '/debug': "Изменить режим debug"
 }
 
 remind_messages = [
@@ -97,6 +97,7 @@ def get_time_zone(message):
     db.update_value('limits', message.chat.id, 'time_zone', hour)
     bot.send_message(message.chat.id, "Мы учтем временной пояс, чтобы не беспокоить вас не вовремя.", reply_markup=create_keyboard(['/help']))
 
+
 @bot.message_handler(commands=['help'])
 def help(message):
     user_id = message.chat.id
@@ -104,6 +105,19 @@ def help(message):
     for func in functions.items():
         help_message += f'{func[0]} - {func[1]}\n'
     bot.send_message(user_id, help_message)
+
+
+@bot.message_handler(commands=['debug'])
+def help(message):
+    user_id = message.chat.id
+    user_mode = bool(db.get_value('limits', user_id, 'debug'))
+    user_mode = not(user_mode)
+    print("old", user_mode, end = ", ")
+    db.update_value('limits', user_id, 'debug', int(user_mode))
+    if user_mode:
+        bot.send_message(user_id, "Режим debug включен")
+    else:
+        bot.send_message(user_id, "Режим debug выключен")
 
 
 @bot.message_handler(commands=['tts'])
@@ -134,7 +148,11 @@ def tts(message, arg_user_id, arg_text):
         db.increase_value("limits", user_id, "tts_symbols", len(text))
         logging.info(f"Запрос от {user_id} проверки режима TTS")
 
-        status, content = text_to_speech(text)
+        status, content, error_code = text_to_speech(text)
+
+        user_mode = bool(db.get_value('limits', user_id, 'debug'))
+        if user_mode:
+            bot.send_message(user_id, f"Статус-код обращения к Speechkit: {error_code}")
 
         if status:
             bot.send_voice(user_id, content)
@@ -170,7 +188,11 @@ def stt(message, mode="send"):
         file_info = bot.get_file(file_id)
         file = bot.download_file(file_info.file_path)
 
-        status, text = speech_to_text(file)
+        status, text, error_code = speech_to_text(file)
+
+        user_mode = bool(db.get_value('limits', user_id, 'debug'))
+        if user_mode:
+            bot.send_message(user_id, f"Статус-код обращения к Speechkit: {error_code}")
 
         if status:
             db.increase_value("limits", user_id, "stt_blocks", out) #увеличить счетчик блоков
@@ -197,16 +219,25 @@ def get_gpt_answer(message, arg_user_id=None, arg_text=None, mode="send") -> tup
         text = arg_text
 
     try:
-        status, out = validators.is_gpt_token_limit(user_id, text)
+        user_mode = bool(db.get_value('limits', user_id, 'debug'))
+        status, error_message, error_code = validators.is_gpt_token_limit(user_id, text)
+
+        if user_mode:
+            bot.send_message(user_id, f"Статус-код ображения к Tokinize: {error_code}")
 
         if not status:
-            bot.send_message(user_id, out)
+            bot.send_message(user_id, error_message)
             return False, ""
         
         db.insert_row("messages", (user_id, "user", text, int(time.time())))
         messages = db.select_n_last_messages(user_id) 
-        print("here")
-        status, answer, tokens_in_answer = ask_gpt(messages)
+
+        status, answer, tokens_in_answer, error_code = ask_gpt(messages)
+        print(status, answer, tokens_in_answer, error_code)
+
+        if user_mode:
+            bot.send_message(user_id, f"Статус-код ображения к YandexGPT: {error_code}")
+
         if not status:
             bot.send_message(user_id, text)
             return False, ""

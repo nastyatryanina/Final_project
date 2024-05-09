@@ -52,7 +52,8 @@ def create_database():
         total_gpt_tokens INTEGER,
         tts_symbols INTEGER,
         stt_blocks INTEGER, 
-        time_zone INTEGER);
+        time_zone INTEGER DEFAULT 0, 
+        debug INTEGER DEFAULT 0);
     '''
     execute_query(query1)
     logging.info("DATABASE: База limits данных создана")

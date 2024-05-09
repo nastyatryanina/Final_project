@@ -45,16 +45,19 @@ def is_stt_block_limit(message, duration):
 
 
 def is_gpt_token_limit(user_id, text):
-    tokens_in_text = count_gpt_tokens([{'role': 'user', 'text': text}])
+    tokens_in_text, error_code = count_gpt_tokens([{'role': 'user', 'text': text}])
+    if tokens_in_text == 0 or error_code != 200:
+        msg = f"Не получилось посчитать токены в сообщении"
+        return False, msg, error_code
     all_tokens = get_value("limits", user_id, "total_gpt_tokens") + tokens_in_text
 
     if tokens_in_text >= MAX_GPT_TOKENS_IN_MESSAGE:
         msg = f"Превышен лимит Yandex GPT на запрос {MAX_GPT_TOKENS_IN_MESSAGE}, в сообщении {tokens_in_text} символов"
-        return False, msg
+        return False, msg, error_code
 
     if all_tokens >= MAX_USER_GPT_TOKENS:
         msg = f"Превышен общий лимит Yandex GPT {MAX_USER_GPT_TOKENS}. Использовано {all_tokens} блоков. Доступно: {MAX_USER_GPT_TOKENS- all_tokens}"
-        return False, msg
+        return False, msg, error_code
     
-    return True, all_tokens
+    return True, all_tokens, error_code
 
