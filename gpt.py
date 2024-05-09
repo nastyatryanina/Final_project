@@ -53,6 +53,3 @@ def ask_gpt(messages):
     
     return True, answer, tokens_in_answer, response.status_code
     
-    
-if __name__ == "__main__":
-    print(count_gpt_tokens([{"role": 'user', "text": 'hello'}]))

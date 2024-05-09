@@ -112,7 +112,7 @@ def help(message):
     user_id = message.chat.id
     user_mode = bool(db.get_value('limits', user_id, 'debug'))
     user_mode = not(user_mode)
-    print("old", user_mode, end = ", ")
+
     db.update_value('limits', user_id, 'debug', int(user_mode))
     if user_mode:
         bot.send_message(user_id, "Режим debug включен")
@@ -233,7 +233,6 @@ def get_gpt_answer(message, arg_user_id=None, arg_text=None, mode="send") -> tup
         messages = db.select_n_last_messages(user_id) 
 
         status, answer, tokens_in_answer, error_code = ask_gpt(messages)
-        print(status, answer, tokens_in_answer, error_code)
 
         if user_mode:
             bot.send_message(user_id, f"Статус-код ображения к YandexGPT: {error_code}")
