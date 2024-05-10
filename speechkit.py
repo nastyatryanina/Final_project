@@ -5,9 +5,9 @@ from config import LOGS
 logging.basicConfig(filename=LOGS, level=logging.ERROR, format="%(asctime)s FILE: %(filename)s IN: %(funcName)s MESSAGE: %(message)s", filemode="w")
 
 URL = f"https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize"
-IAM_TOKEN, FOLDER_ID = get_creds()
 
 def text_to_speech(text):
+    IAM_TOKEN, FOLDER_ID = get_creds()
     headers = {
         'Authorization': f'Bearer {IAM_TOKEN}'
     }
@@ -28,6 +28,8 @@ def text_to_speech(text):
     
 
 def speech_to_text(data):
+    IAM_TOKEN, FOLDER_ID = get_creds()
+
     params = "&".join([
         "topic=general",
         f"folderId={FOLDER_ID}",

@@ -60,8 +60,6 @@ def create_keyboard(buttons_list):
 def start(message):
     user_id = message.chat.id
 
-    logging.info(f"Новый пользователь с id {user_id}")
-
     status, error_message = validators.is_users_limit(user_id) #проверка на количество пользователей
 
     if not status:

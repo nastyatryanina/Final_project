@@ -1,13 +1,16 @@
-from config import MAX_USERS, MAX_USER_STT_BLOCKS, MAX_USER_TTS_SYMBOLS, MAX_USER_GPT_TOKENS, MAX_TTS_SYMBOLS_IN_MESSAGE, MAX_GPT_TOKENS_IN_MESSAGE
+from config import LOGS, MAX_USERS, MAX_USER_STT_BLOCKS, MAX_USER_TTS_SYMBOLS, MAX_USER_GPT_TOKENS, MAX_TTS_SYMBOLS_IN_MESSAGE, MAX_GPT_TOKENS_IN_MESSAGE
 from database import get_value, count_users
 from gpt import count_gpt_tokens
-import math
+import math, logging
 
+logging.basicConfig(filename=LOGS, level=logging.ERROR, format="%(asctime)s FILE: %(filename)s IN: %(funcName)s MESSAGE: %(message)s", filemode="w")
 
 def is_users_limit(user_id):
     users = count_users(user_id)
     if users >= MAX_USERS:
+        logging.info(f"Пользователя с id {user_id} не получилось добавить")
         return False, "К сожалению, лимит пользователей исчерпан."
+    logging.info(f"Новый пользователь с id {user_id}")
     return True, ""
 
 
